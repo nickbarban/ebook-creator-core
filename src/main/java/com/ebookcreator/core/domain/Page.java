@@ -28,7 +28,7 @@ public class Page {
 
     private Float findEndX(List<Line> lines) {
         return lines.stream()
-                .map(line -> line.getLetters().get(0).getEndX())
+                .map(line -> line.getLetters().get(line.getLetters().size() - 1).getEndX())
                 .max((Float::compareTo))
                 .orElseThrow(() -> new RuntimeException("Can not find maximum X coordinate"));
     }
