@@ -1,6 +1,9 @@
 package com.ebookcreator.core.domain;
 
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -13,20 +16,27 @@ import java.util.stream.Collectors;
  */
 @Data
 public class Page {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Page.class);
     private final List<Line> lines;
     private final Integer pageNum;
-    private final Float startX;
-    private final Float endX;
+    private final Float minX;
+    private final Float maxX;
 
     public Page(List<Line> lines, Integer pageNum) {
 
         this.lines = processLines(lines);
         this.pageNum = pageNum;
-        this.startX = findStartX(this.lines);
-        this.endX = findEndX(this.lines);
+        this.minX = findStartX(this.lines);
+        this.maxX = findEndX(this.lines);
     }
 
     private Float findEndX(List<Line> lines) {
+
+        if (CollectionUtils.isEmpty(lines)) {
+            LOGGER.warn("Page {} has no line", this.pageNum);
+            return -1.0f;
+        }
+
         return lines.stream()
                 .map(line -> line.getLetters().get(line.getLetters().size() - 1).getEndX())
                 .max((Float::compareTo))
@@ -34,6 +44,12 @@ public class Page {
     }
 
     private Float findStartX(List<Line> lines) {
+
+        if (CollectionUtils.isEmpty(lines)) {
+            LOGGER.warn("Page {} has no line", this.pageNum);
+            return -1.0f;
+        }
+
         return lines.stream()
                 .map(line -> line.getLetters().get(0).getStartX())
                 .min((Float::compareTo))

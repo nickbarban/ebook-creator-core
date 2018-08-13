@@ -118,7 +118,11 @@ public class EbookCreatorCoreApplicationTests {
         String author = document.getDocumentInformation().getAuthor();
         String title = document.getDocumentInformation().getTitle();
         List<Page> pages = bookmarks.stream()
-                .map(b -> getPage(document, b.getPageNum(), b.getNextPageNum() - 1))
+                .map(b -> {
+                    Integer endPageNum = b.getNextPageNum() == null ?
+                            document.getDocumentCatalog().getPages().getCount() : b.getNextPageNum() - 1;
+                    return getPage(document, b.getPageNum(), endPageNum);
+                })
                 .collect(Collectors.toList());
 
         return new Book(title, author, pages, bookmarks);
@@ -132,6 +136,7 @@ public class EbookCreatorCoreApplicationTests {
             BookStripper stripper = new BookStripper();
             stripper.setStartPage(startPageNum);
             stripper.setEndPage(endPageNum);
+            stripper.getText(document);
             List<Line> lines = stripper.getLines();
             return new Page(lines, startPageNum);
         } catch (IOException e) {
